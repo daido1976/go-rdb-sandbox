@@ -1,0 +1,36 @@
+# postgres ユーザ、およびデータベースの作成、初期化スクリプトの実行は初回起動時のみに行われるので注意。
+# 再起動するには pg_data の volume を一度削除する必要がある。
+# https://github.com/docker-library/postgres/issues/203#issuecomment-255200501
+# 以下のような感じ。
+# ボリュームにホストの ./data/postgres を指定している場合
+# $ docker-compose down
+# $ rm -rf ./data/postgres
+# $ docker-compose up
+# 名前付きボリューム（Named volume）の場合
+# $ docker-compose down
+# $ docker volume rm go-rdb-sandbox_pg_data
+# $ docker-compose up
+version: "3"
+
+services:
+  postgres:
+    image: postgres:13.0-alpine
+    container_name: go-rdb-sandbox-postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=grs
+      - POSTGRES_USER=grs
+      - POSTGRES_DB=grs
+    volumes:
+      # When use relative path
+      - ./data/postgres:/var/lib/postgresql/data
+      # When use Named volumes
+      # - pg_data:/var/lib/postgresql/data
+      # コンテナ内の /docker-entrypoint-initdb.d に置かれた `*.sql` や `*.sh` のスクリプトは初期化スクリプトとし実実行される。
+      # https://hub.docker.com/_/postgres の Initialization scripts 参照。
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+# Named volumes must be listed under the top-level volumes key.
+# https://docs.docker.com/compose/compose-file/#volumes
+# volumes:
+#   pg_data:
