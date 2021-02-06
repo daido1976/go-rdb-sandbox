@@ -29,7 +29,7 @@ func main() {
 // connect to the Db
 func init() {
 	var err error
-	Db, err = sql.Open("postgres", "user=grs dbname=grs password=grs sslmode=disable")
+	Db, err = sql.Open("postgres", "user=grs password=grs dbname=grs_db sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
